@@ -1,0 +1,16 @@
+{
+  "name": "CLI network spatializer",
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "canvas": "^2.9.3",
+    "event-stream": "^4.0.1",
+    "graphology": "^0.24.1",
+    "graphology-canvas": "^0.4.1",
+    "graphology-communities-louvain": "^2.0.1",
+    "graphology-layout": "^0.6.0",
+    "graphology-layout-forceatlas2": "^0.9.2",
+    "graphology-metrics": "^2.1.0",
+    "graphology-types": "^0.24.4"
+  }
+}
