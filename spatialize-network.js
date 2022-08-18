@@ -1,11 +1,11 @@
-// Usage (with 8GB heap size given to node)
-// node --max-old-space-size=8192 spatialize-network.js <EDGELIST_AS_SOURCE-TARGET-WEIGHT.CSV> <NB_FA2_ITERATIONS> <NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS>
-// or:
-// node --max-old-space-size=8192 spatialize-network.js <GRAPH_DUMPED_BY_THIS_SCRIPT.JSON> <NB_EXTRA_FA2_ITERATIONS> <NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS>
+// Usage (from a CSV file of edges formatted as source,target,weight
+// node spatialize-network.js <EDGELIST_AS_SOURCE-TARGET-WEIGHT.CSV> <NB_FA2_ITERATIONS> <NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS>
+//
+// or, to run more iterations after a previous run, using the positions CSV file dumped by the previous run (which should be named such as "ORIGINALFILE.csv_positions_after_N_FA2Iterations.csv"):
+// node spatialize-network.js <POSITIONS_FILE_DUMPED_BY_THIS_SCRIPT.CSV> <NB_EXTRA_FA2_ITERATIONS> <NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS>
 
 import fs from 'fs';
 import es from 'event-stream';
-import { JsonStreamStringify } from 'json-stream-stringify';
 import DirectedGraph from 'graphology';
 import random from 'graphology-layout/random.js';
 import forceAtlas2 from 'graphology-layout-forceatlas2';
@@ -15,8 +15,8 @@ import {density} from 'graphology-metrics/graph/density.js';
 
 const args = process.argv.slice(2);
 const filename = args[0];
-const fileroot = filename.replace(/(_(\d+)FA2Iterations)?.(csv|json)/, '');
-const preIterations = (/_(\d+)FA2Iterations\.json$/.test(filename) ? parseInt(filename.replace(/^.*_(\d+)FA2Iterations\.json/, '$1')) : 0);
+const fileroot = filename.replace(/.csv(_positions_after_(\d+)_FA2Iterations\.csv)?$/, '');
+const preIterations = (/_positions_after_\d+_FA2Iterations\.csv$/.test(filename) ? parseInt(filename.replace(/^.*_positions_after_(\d+)_FA2Iterations\.csv/, '$1')) : 0);
 const FA2Iterations = (args.length < 2 ? 1000 : parseInt(args[1]));
 const batchIterations = (args.length < 3 ? 100 : parseInt(args[2]));
 
@@ -55,30 +55,20 @@ function runBatchFA2(graph, doneIterations, finalCallback) {
   console.log(' FA2 batch of ' + batchIterations + ' iterations processed in:', (Date.now() - t0)/1000 + "s");
   doneIterations += batchIterations;
   if (doneIterations < FA2Iterations)
-    renderPNG(graph, fileroot + "_" + (doneIterations + preIterations), 256, function(){
+    renderPNG(graph, fileroot + "_" + (doneIterations + preIterations), 512, function(){
       runBatchFA2(graph, doneIterations, finalCallback);
     });
   else finalCallback();
 }
 
-function streamWriteJSON(outputFile, obj) {
-  var out = fs.createWriteStream(outputFile);
-  const jsonStream = new JsonStreamStringify(obj);
-  jsonStream.once('error', () => console.log('Error writing JSON data', jsonStream.stack.join('.')));
-  jsonStream.pipe(out);
-  console.log('Resulting graph stored in', outputFile);
-}
-
 function processGraph(graph, time0){
 
   // Displaying graph's stats
-  let time1 = Date.now();
-  console.log('Graph loaded in:', (time1 - time0)/1000 + "s");
-  time0 = time1
   console.log('Number of nodes:', graph.order);
   console.log('Number of edges:', graph.size);
   console.log('Graph density:', density(graph));
 
+/* Commenting this part for now since we do not do everything with the communities nor store them in the output graph
   if (preIterations == 0) {
     // Computing Louvain communities
     const details = louvain.detailed(graph, {
@@ -91,48 +81,80 @@ function processGraph(graph, time0){
     console.log('Louvain communities:', details.count);
     console.log('Louvain modularity:', details.modularity);
   }
+*/
 
   // Spatializing with FA2
   console.log('Starting ForceAtlas2 for ' + FA2Iterations + ' iterations by batches of ' + batchIterations);
   runBatchFA2(graph, 0, function() {
-    time1 = Date.now();
+    let time1 = Date.now();
     console.log('ForceAtlas2 fully processed in:', (time1 - time0)/1000 + "s (" + FA2Iterations + " iterations)");
     time0 = time1;
 
     // Rendering final PNG image
-    const outputFile = fileroot + "_" + (FA2Iterations + preIterations) + "FA2Iterations";
+    const outputFile = fileroot + "_after_" + (FA2Iterations + preIterations) + "_FA2Iterations";
     renderPNG(graph, outputFile, 8192, function() {
-      // Saving result to graphology's serialized JSON format
-      const serialized = graph.export();
-      streamWriteJSON(outputFile + ".json", serialized);
+      // Saving resulting positions to a new CSV file
+      time0 = Date.now()
+      const posFile = fileroot + ".csv" + "_positions_after_" + (FA2Iterations + preIterations) + "_FA2Iterations.csv";
+      const out = fs.createWriteStream(posFile);
+      out.write("Node,xPos,yPos\n");
+      let test = 0;
+      graph.forEachNode(function(node, attrs){
+        //if (!node || node === "undefined") return;
+        if (test == 0) {
+          console.log(node, attrs);
+          test = 1;
+        }
+        out.write(node + ',' + attrs['x'] + ',' + attrs['y'] + "\n");
+      });
+      console.log('Positions stored in ' + posFile + ' in:', (Date.now() - time0)/1000 + "s");
     });
   });
 }
 
 let time0 = Date.now();
-if (preIterations == 0) {
-  // Read edges file line by line and adds nodes/edges
-  const graph = new DirectedGraph();
-  fs.createReadStream(filename)
-    .pipe(es.split())
-    .pipe(es.mapSync(function(line) {
-      const [source, target, weight] = line.split(/,/);
-      if (source === "Source") return;
-      graph.mergeNode(source);
-      graph.mergeNode(target);
-      graph.addEdge(source, target, {weight});
-    }))
+// Read edges file line by line and adds nodes/edges
+const graph = new DirectedGraph();
+fs.createReadStream(fileroot + ".csv")
+  .pipe(es.split())
+  .pipe(es.mapSync(function(line) {
+    const [source, target, weight] = line.split(/,/);
+    if (source === "Source") return;
+    graph.mergeNode(source);
+    graph.mergeNode(target);
+    graph.addEdge(source, target, {weight: parseInt(weight)});
+  }))
 
-    // Then work with the full graph
-    .on("end", function() {
+// Then assign either random positions to node on first run
+  .on("end", function() {
+    let time1 = Date.now();
+    console.log('Graph loaded from edges list in:', (time1 - time0)/1000 + "s");
+    time0 = time1;
+    if (preIterations == 0) {
       random.assign(graph);
-      processGraph(graph, time0);
-    });
+      time1 = Date.now();
+      console.log('Random positions assigned in:', (time1 - time0)/1000 + "s");
+      time0 = time1;
 
-} else {
-  // Read serialized json graph from previous run
-  const data = JSON.parse(fs.readFileSync(filename));
-  const graph = DirectedGraph.from(data);
-  processGraph(graph, time0);
-}
+      processGraph(graph, time0);
+
+// or reload positions from a previous run's output
+    } else {
+      fs.createReadStream(filename)
+        .pipe(es.split())
+        .pipe(es.mapSync(function(line) {
+          const [node, xPos, yPos] = line.split(/,/);
+          if (node === "Node") return;
+          graph.mergeNode(node, {x: parseFloat(xPos), y: parseFloat(yPos)});
+        }))
+
+        .on("end", function() {
+          time1 = Date.now();
+          console.log('Positions from previous run assigned in:', (time1 - time0)/1000 + "s");
+          time0 = time1;
+
+          processGraph(graph, time0);
+        });
+    }
+  });
 
