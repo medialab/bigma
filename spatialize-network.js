@@ -1,10 +1,11 @@
-// Usage
-// node spatialize-network.js <EDGELIST_AS_SOURCE-TARGET-WEIGHT.CSV> <NB_FA2_ITERATIONS> <NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS>
+// Usage (with 8GB heap size given to node)
+// node --max-old-space-size=8192 spatialize-network.js <EDGELIST_AS_SOURCE-TARGET-WEIGHT.CSV> <NB_FA2_ITERATIONS> <NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS>
 // or:
-// node spatialize-network.js <GRAPH_DUMPED_BY_THIS_SCRIPT.JSON> <NB_EXTRA_FA2_ITERATIONS> <NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS>
+// node --max-old-space-size=8192 spatialize-network.js <GRAPH_DUMPED_BY_THIS_SCRIPT.JSON> <NB_EXTRA_FA2_ITERATIONS> <NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS>
 
 import fs from 'fs';
 import es from 'event-stream';
+import { JsonStreamStringify } from 'json-stream-stringify';
 import DirectedGraph from 'graphology';
 import random from 'graphology-layout/random.js';
 import forceAtlas2 from 'graphology-layout-forceatlas2';
@@ -60,6 +61,14 @@ function runBatchFA2(graph, doneIterations, finalCallback) {
   else finalCallback();
 }
 
+function streamWriteJSON(outputFile, obj) {
+  var out = fs.createWriteStream(outputFile);
+  const jsonStream = new JsonStreamStringify(obj);
+  jsonStream.once('error', () => console.log('Error writing JSON data', jsonStream.stack.join('.')));
+  jsonStream.pipe(out);
+  console.log('Resulting graph stored in', outputFile);
+}
+
 function processGraph(graph, time0){
 
   // Displaying graph's stats
@@ -95,8 +104,7 @@ function processGraph(graph, time0){
     renderPNG(graph, outputFile + ".png", 8192, function() {
       // Saving result to graphology's serialized JSON format
       const serialized = graph.export();
-      fs.writeFileSync(outputFile + ".json", JSON.stringify(serialized));
-      console.log('Resulting graph stored in', outputFile);
+      streamWriteJSON(outputFile + ".json", serialized);
     });
   });
 }
@@ -127,3 +135,4 @@ if (preIterations == 0) {
   const graph = DirectedGraph.from(data);
   processGraph(graph, time0);
 }
+
