@@ -101,7 +101,7 @@ function processGraph(graph, time0){
 
     // Rendering final PNG image
     const outputFile = fileroot + "_" + (FA2Iterations + preIterations) + "FA2Iterations";
-    renderPNG(graph, outputFile + ".png", 8192, function() {
+    renderPNG(graph, outputFile, 8192, function() {
       // Saving result to graphology's serialized JSON format
       const serialized = graph.export();
       streamWriteJSON(outputFile + ".json", serialized);
