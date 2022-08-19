@@ -98,13 +98,7 @@ function processGraph(graph, time0){
       const posFile = fileroot + ".csv" + "_positions_after_" + (FA2Iterations + preIterations) + "_FA2Iterations.csv";
       const out = fs.createWriteStream(posFile);
       out.write("Node,xPos,yPos\n");
-      let test = 0;
       graph.forEachNode(function(node, attrs){
-        //if (!node || node === "undefined") return;
-        if (test == 0) {
-          console.log(node, attrs);
-          test = 1;
-        }
         out.write(node + ',' + attrs['x'] + ',' + attrs['y'] + "\n");
       });
       console.log('Positions stored in ' + posFile + ' in:', (Date.now() - time0)/1000 + "s");
@@ -119,7 +113,7 @@ fs.createReadStream(fileroot + ".csv")
   .pipe(es.split())
   .pipe(es.mapSync(function(line) {
     const [source, target, weight] = line.split(/,/);
-    if (source === "Source") return;
+    if (!source || source === "Source") return;
     graph.mergeNode(source);
     graph.mergeNode(target);
     graph.addEdge(source, target, {weight: parseInt(weight)});
