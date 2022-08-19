@@ -138,7 +138,7 @@ fs.createReadStream(fileroot + ".csv")
         .pipe(es.split())
         .pipe(es.mapSync(function(line) {
           const [node, xPos, yPos] = line.split(/,/);
-          if (node === "Node") return;
+          if (!node || node === "Node") return;
           graph.mergeNode(node, {x: parseFloat(xPos), y: parseFloat(yPos)});
         }))
 
