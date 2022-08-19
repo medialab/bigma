@@ -60,7 +60,7 @@ function runBatchFA2(graph, doneIterations, finalCallback) {
   });
   console.log(' FA2 batch of ' + batchIterations + ' iterations processed in:', (Date.now() - t0)/1000 + "s");
   doneIterations += batchIterations;
-  renderPNG(graph, fileroot + "_" + (doneIterations + preIterations), 512, function(){
+  renderPNG(graph, fileroot + "_snapshot_" + String(doneIterations + preIterations).padStart(8, '0'), 512, function(){
     if (!stop && doneIterations < FA2Iterations)
       runBatchFA2(graph, doneIterations, finalCallback);
     else finalCallback(doneIterations);
