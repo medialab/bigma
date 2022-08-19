@@ -20,6 +20,12 @@ const preIterations = (/_positions_after_\d+_FA2Iterations\.csv$/.test(filename)
 const FA2Iterations = (args.length < 2 ? 1000 : parseInt(args[1]));
 const batchIterations = (args.length < 3 ? 100 : parseInt(args[2]));
 
+let stop = false;
+process.on('SIGINT', () => {
+  stop = true;
+  console.log("Caught interrupt signal, finishing current batch, plotting final image and saving nodes positions...");
+});
+
 function renderPNG(graph, imagefile, size, callback) {
   const t0 = Date.now();
   renderToPNG(
@@ -54,11 +60,11 @@ function runBatchFA2(graph, doneIterations, finalCallback) {
   });
   console.log(' FA2 batch of ' + batchIterations + ' iterations processed in:', (Date.now() - t0)/1000 + "s");
   doneIterations += batchIterations;
-  if (doneIterations < FA2Iterations)
-    renderPNG(graph, fileroot + "_" + (doneIterations + preIterations), 512, function(){
+  renderPNG(graph, fileroot + "_" + (doneIterations + preIterations), 512, function(){
+    if (!stop && doneIterations < FA2Iterations)
       runBatchFA2(graph, doneIterations, finalCallback);
-    });
-  else finalCallback();
+    else finalCallback(doneIterations);
+  });
 }
 
 function processGraph(graph, time0){
@@ -85,17 +91,17 @@ function processGraph(graph, time0){
 
   // Spatializing with FA2
   console.log('Starting ForceAtlas2 for ' + FA2Iterations + ' iterations by batches of ' + batchIterations);
-  runBatchFA2(graph, 0, function() {
+  runBatchFA2(graph, 0, function(doneIterations) {
     let time1 = Date.now();
-    console.log('ForceAtlas2 fully processed in:', (time1 - time0)/1000 + "s (" + FA2Iterations + " iterations)");
+    console.log('ForceAtlas2 ' + (stop ? 'partia' : 'fu') + 'lly processed in:', (time1 - time0)/1000 + "s (" + doneIterations + " iterations)");
     time0 = time1;
 
     // Rendering final PNG image
-    const outputFile = fileroot + "_after_" + (FA2Iterations + preIterations) + "_FA2Iterations";
+    const outputFile = fileroot + "_after_" + (doneIterations + preIterations) + "_FA2Iterations";
     renderPNG(graph, outputFile, 8192, function() {
       // Saving resulting positions to a new CSV file
       time0 = Date.now()
-      const posFile = fileroot + ".csv" + "_positions_after_" + (FA2Iterations + preIterations) + "_FA2Iterations.csv";
+      const posFile = fileroot + ".csv" + "_positions_after_" + (doneIterations + preIterations) + "_FA2Iterations.csv";
       const out = fs.createWriteStream(posFile);
       out.write("Node,xPos,yPos\n");
       graph.forEachNode(function(node, attrs){
