@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sigma</title>
+  </head>
+  <body>
+    <style>
+      html,
+      body,
+      #sigma-container {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: sans-serif;
+      }
+      #buttons {
+        position: absolute;
+        right: 1em;
+        top: 1em;
+        display: flex;
+      }
+      form {
+        border: 1px black solid;
+        background-color: #666;
+        color: white;
+      }
+      h4 {
+        margin: 0;
+      }
+      fieldset {
+        border: none;
+      }
+      h4,
+      fieldset > div {
+        margin-bottom: 0.2em;
+      }
+      button {
+        margin-right: 1em;
+        display: inline-block;
+        text-align: center;
+        background: white;
+        outline: none;
+        border: 1px solid dimgrey;
+        border-radius: 2px;
+        cursor: pointer;
+        height: 28px;
+        text-transform: uppercase;
+        font-weight: bold;
+      }
+    </style>
+    <div id="sigma-container"></div>
+    <div id="buttons">
+      <form>
+        <fieldset>
+          <div>
+            <label for="positions">Load a positions CSV (Node,xPos,yPos)</label><br/>
+            <input type="file" name="positions" id="positions_file"></input>
+          </div>
+          <!--<button type="button" id="elcwun">elcwun</button>
+          <button type="button" id="el0_wc_un_nsl">el0_wc_un_nsl</button>-->
+        </fieldset>
+        <fieldset>
+          <h4 id="title"></h4>
+          <div>
+            <label>Number of nodes:</label>
+            <span id="order"></span>
+          </div>
+          <div>
+            <label>Number of edges:</label>
+            <span id="size"></span>
+          </div>
+        </fieldset>
+        <fieldset>
+          <button style="display: none" type="button" id="fa2">Run layout ▶</button>
+        </fieldset>
+      </form>
+    </div>
+    <script src="build/bundle.js"></script>
+  </body>
+</html>
