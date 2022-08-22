@@ -13,7 +13,7 @@ const loadGraph = async (positions) => {
   title.textContent = "Loading graph…";
   orderSpan.textContent = "…";
   sizeSpan.textContent = "…";
-  document.querySelectorAll("#sigma-container canvas").forEach(e => { console.log(e); e.parentNode.removeChild(e);})
+  document.querySelectorAll("#sigma-container canvas").forEach(e => e.parentNode.removeChild(e))
   document.getElementById("fa2").style.display = "none";
 
 // Read nodes positions:
