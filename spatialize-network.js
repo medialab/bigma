@@ -19,6 +19,7 @@ const fileroot = filename.replace(/.csv(_positions_after_(\d+)_FA2Iterations\.cs
 const preIterations = (/_positions_after_\d+_FA2Iterations\.csv$/.test(filename) ? parseInt(filename.replace(/^.*_positions_after_(\d+)_FA2Iterations\.csv/, '$1')) : 0);
 const FA2Iterations = (args.length < 2 ? 1000 : parseInt(args[1]));
 const batchIterations = (args.length < 3 ? 100 : parseInt(args[2]));
+const setNodesSizes = (args.length >= 4);
 
 let stop = false;
 process.on('SIGINT', () => {
@@ -88,6 +89,20 @@ function processGraph(graph, time0){
     console.log('Louvain modularity:', details.modularity);
   }
 */
+
+  // Setup nodes size for plots
+  if (setNodesSizes) {
+    graph.forEachNode((node, { cluster }) => {
+      graph.mergeNodeAttributes(node, {
+        size: Math.sqrt(graph.degree(node)) / 10,
+        //color: colors[cluster + ""],
+        label: node
+      });
+    });
+    let time2 = Date.now();
+    console.log('Nodes sizes assigned in:', (time2 - time0)/1000 + "s");
+    time0 = time2;
+  }
 
   // Spatializing with FA2
   console.log('Starting ForceAtlas2 for ' + FA2Iterations + ' iterations by batches of ' + batchIterations);
