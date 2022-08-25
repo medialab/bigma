@@ -18,6 +18,62 @@
         overflow: hidden;
         font-family: sans-serif;
       }
+      #controls {
+        position: absolute;
+        left: 1em;
+        top: 1em;
+        text-align: right;
+        display: none;
+      }
+      .input {
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .input:not(:hover) label {
+        display: none;
+      }
+      .input label {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: black;
+        color: white;
+        padding: 0.2em;
+        border-radius: 2px;
+        margin-top: 0.3em;
+        font-size: 0.8em;
+        white-space: nowrap;
+      }
+      .input button {
+        width: 2.5em;
+        height: 2.5em;
+        display: inline-block;
+        text-align: center;
+        background: white;
+        outline: none;
+        border: 1px solid dimgrey;
+        border-radius: 2px;
+        cursor: pointer;
+        margin-right: 5px;
+      }
+      #labels-input {
+        position: absolute;
+        top: 3em;
+        left: 0;
+      }
+      #labels-threshold {
+        width: 100%;
+      }
+      #search {
+        position: absolute;
+        left: 0;
+        top: 5em;
+      }
+      #search input {
+        width: 100%;
+      }
       #buttons {
         position: absolute;
         right: 1em;
@@ -39,21 +95,21 @@
       fieldset > div {
         margin-bottom: 0.2em;
       }
-      button {
-        margin-right: 1em;
-        display: inline-block;
-        text-align: center;
-        background: white;
-        outline: none;
-        border: 1px solid dimgrey;
-        border-radius: 2px;
-        cursor: pointer;
-        height: 28px;
-        text-transform: uppercase;
-        font-weight: bold;
-      }
     </style>
     <div id="sigma-container"></div>
+    <div id="controls">
+      <div id="search">
+        <input type="search" id="search-input" list="suggestions" placeholder="Search a node..." />
+        <datalist id="suggestions"></datalist>
+      </div>
+      <div class="input"><label for="zoom-in">Zoom in</label><button id="zoom-in">+</button></div>
+      <div class="input"><label for="zoom-out">Zoom out</label><button id="zoom-out">-</button></div>
+      <div class="input"><label for="zoom-reset">Reset zoom</label><button id="zoom-reset">⊙</button></div>
+      <div id="labels-input" class="input">
+        <label for="labels-threshold">Labels density</label>
+        <input id="labels-threshold" type="range" min="-10" max="0" step="1" />
+      </div>
+    </div>
     <div id="buttons">
       <form>
         <fieldset>
@@ -76,9 +132,6 @@
             <label>Number of edges:</label>
             <span id="size"></span>
           </div>
-        </fieldset>
-        <fieldset>
-          <button style="display: none" type="button" id="fa2">Run layout ▶</button>
         </fieldset>
       </form>
     </div>
