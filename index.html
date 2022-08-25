@@ -57,12 +57,14 @@
     <div id="buttons">
       <form>
         <fieldset>
-          <div>
-            <label for="positions">Load a positions CSV (Node,xPos,yPos)</label><br/>
-            <input type="file" name="positions" id="positions_file"></input>
+          <div id="loadPositions">
+            <label for="positions">Load the positions CSV (Node,xPos,yPos)</label><br/>
+            <input type="file" name="positions" id="positions_file"></input><br/><br/>
           </div>
-          <!--<button type="button" id="elcwun">elcwun</button>
-          <button type="button" id="el0_wc_un_nsl">el0_wc_un_nsl</button>-->
+          <div id="loadEdges" style="opacity: 0">
+            <label for="positions">Load the edges CSV (Source,Target,Weight)</label><br/>
+            <input type="file" name="edges" id="edges_file"></input>
+          </div>
         </fieldset>
         <fieldset>
           <h4 id="title"></h4>
