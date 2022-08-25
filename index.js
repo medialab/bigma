@@ -1,6 +1,8 @@
 import fetchline from "fetchline";
 import {Sigma} from "sigma";
 import DirectedGraph from "graphology";
+import FileSaver from "file-saver";
+
 
 const graph = new DirectedGraph();
 
@@ -110,7 +112,6 @@ const renderGraph = () => {
     const searchSuggestions = document.getElementById("suggestions");
     let selectedNode = null,
       suggestions = [];
-
     const setSearchQuery = (query) => {
       if (searchInput.value !== query) searchInput.value = query;
       if (query.length > 1) {
@@ -146,12 +147,53 @@ const renderGraph = () => {
       // Refresh rendering:
       renderer.refresh();
     }
-
     searchInput.addEventListener("input", () => {
       setSearchQuery(searchInput.value || "");
     });
     searchInput.addEventListener("blur", () => {
       setSearchQuery("");
+    });
+
+    // Enable SavePNG button
+    document.getElementById("save-as-png").addEventListener("click", async () => {
+      const { width, height } = renderer.getDimensions();
+      const pixelRatio = window.devicePixelRatio || 1;
+      const tmpRoot = document.createElement("DIV");
+      tmpRoot.style.width = `${width}px`;
+      tmpRoot.style.height = `${height}px`;
+      tmpRoot.style.position = "absolute";
+      tmpRoot.style.right = "101%";
+      tmpRoot.style.bottom = "101%";
+      document.body.appendChild(tmpRoot);
+      const tmpRenderer = new Sigma(graph, tmpRoot, renderer.getSettings());
+      tmpRenderer.getCamera().setState(camera.getState());
+      tmpRenderer.refresh();
+      const canvas = document.createElement("CANVAS");
+      canvas.setAttribute("width", width * pixelRatio + "");
+      canvas.setAttribute("height", height * pixelRatio + "");
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, width * pixelRatio, height * pixelRatio);
+      const canvases = tmpRenderer.getCanvases();
+      const layers = Object.keys(canvases);
+      layers.forEach((id) => {
+        ctx.drawImage(
+          canvases[id],
+          0,
+          0,
+          width * pixelRatio,
+          height * pixelRatio,
+          0,
+          0,
+          width * pixelRatio,
+          height * pixelRatio,
+        );
+      });
+      canvas.toBlob((blob) => {
+        if (blob) FileSaver.saveAs(blob, "graph.png");
+        tmpRenderer.kill();
+        tmpRoot.remove();
+      }, "image/png");
     });
 
     title.textContent = "Graph ready";

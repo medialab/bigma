@@ -12,6 +12,7 @@
     "canvas": "^2.9.3",
     "event-stream": "^4.0.1",
     "fetchline": "^1.0.1",
+    "file-saver": "^2.0.5",
     "graphology": "^0.24.1",
     "graphology-canvas": "^0.4.1",
     "graphology-communities-louvain": "^2.0.1",
