@@ -2,7 +2,7 @@
 
 Spatialize huge graphs in CLI with [graphology](https://graphology.github.io/) then explore them on the web with [Sigma.js](https://www.sigmajs.org/).
 
-# Install:
+## Install:
 
 ```bash
 git clone https://github.com/medialab/bigma
@@ -10,7 +10,7 @@ cd bigma
 npm install
 ```
 
-# Spatialize a graph:
+## Spatialize a graph:
 
 The script requires an edges CSV structured as `Souce,Target,Weight`.
 
@@ -32,7 +32,7 @@ If you have [ImageMagick's convert](https://imagemagick.org/script/convert.php) 
 ./build_gif.sh <ORIGINAL_EDGELIST.CSV>
 ```
 
-# Visualize the output on the web:
+## Visualize the output on the web:
 
 ```bash
 npm start

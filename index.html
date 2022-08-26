@@ -93,15 +93,17 @@
         width: 100%;
         background: white;
       }
-      #load-menu {
+      .menu {
         position: absolute;
         right: 1em;
-        top: 1em;
         border: 1px black solid;
         background-color: #888;
         color: white;
         padding: 8px;
         line-height: 22px;
+      }
+      #load {
+        top: 1em;
       }
       #nodes, #edges, #loadEdges {
         display: none;
@@ -111,8 +113,67 @@
         font-weight: bold;
         padding-left: 20px;
       }
+      .code ul {
+        margin: 0;
+        padding: 0;
+        max-width: 200px;
+      }
+      .code option, .code li {
+        list-style-type: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 220px;
+      }
       h4 {
         margin: 0;
+      }
+      #colors {
+        bottom: 1em;
+        display: none;
+      }
+      #colorChoice {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        height: 25px;
+      }
+      #legend {
+        display: none;
+        background-color: white;
+        border: 1px black solid;
+        padding: 4px;
+        color: black;
+        font-weight: bold;
+        font-family: monospace;
+      }
+      #grad {
+        width: 90%;
+        height: 20px;
+        margin: 5px 5% 25px 5%;
+      }
+      .colorbox {
+        width: 20px;
+        height: 20px;
+        margin: 4px 10px;
+        display: inline-block;
+        vertical-align: middle;
+        border: 1px black solid;
+        padding-left: 20px;
+      }
+      #legend span {
+        position: absolute;
+        top: 90px;
+        text-align: center;
+      }
+      #minval {
+        left: 5%;
+      }
+      #midval {
+        right: 45%;
+      }
+      #maxval {
+        right: 5%;
       }
     </style>
     <div id="sigma-container"></div>
@@ -130,14 +191,14 @@
       </div>
       <button type="button" id="save-as-png">Save as PNG</button>
     </div>
-    <div id="load-menu">
+    <div id="load" class="menu">
       <div id="loadPositions">
         <label for="positions">Load the positions CSV<br/><span class="code">Node,xPos,yPos</span></label><br/>
         <input type="file" name="positions" id="positions_file"></input>
       </div>
       <div id="nodes">
         <b>Nodes:</b>
-        <span id="order"></span>
+        <span id="order" class="code"></span>
       </div>
       <div id="loadEdges">
         <label for="positions">Load the edges CSV<br/><span class="code">Source,Target,Weight</span></label><br/>
@@ -145,9 +206,17 @@
       </div>
       <div id="edges">
         <b>Edges:</b>
-        <span id="size"></span>
+        <span id="size" class="code"></span>
       </div>
       <h4 id="title"></h4>
+    </div>
+    <div id="colors" class="menu">
+      <div id="loadMetadata">
+        <label for="metadata">Load extra metadata CSV<br/><span class="code">Node,meta1,meta2,meta3…</span></label><br/>
+        <input type="file" name="metadata" id="metadata_file"></input>
+      </div>
+      <div id="metadatalog"></div>
+      <div id="legend" class="code"></div>
     </div>
     <div id="loader"><img src="./loader.gif"/></div>
     <script src="build/bundle.js"></script>
