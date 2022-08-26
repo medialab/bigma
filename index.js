@@ -4,12 +4,6 @@ import DirectedGraph from "graphology";
 import FileSaver from "file-saver";
 import rgb from "hsv-rgb";
 
-
-/* TODO:
-  - setup build for gh pages
-*/
-
-
 const graph = new DirectedGraph();
 let renderer = null,
   metas_infos = {};
