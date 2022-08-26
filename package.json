@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "build": "kotatsu build client index.js --production -o build/bundle.js",
-    "start": "kotatsu serve index.js --public / ./"
+    "start": "kotatsu serve index.js --public / ./",
+    "gh-pages": "git stash && git checkout gh-pages && git merge main && npm run build && git commit -m 'update build' build && git push && git checkout main && git stash pop"
   },
   "license": "MIT",
   "dependencies": {
