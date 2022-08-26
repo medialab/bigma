@@ -26,6 +26,12 @@ node spatialize-network.js <EDGELIST_AS_SOURCE-TARGET-WEIGHT.CSV> <NB_FA2_ITERAT
 
 ```
 
+If you have [ImageMagick's convert](https://imagemagick.org/script/convert.php) tool installed, you can visualize the spatialization evolution as a gif by running:
+
+```
+./build_gif.sh <ORIGINAL_EDGELIST.CSV>
+```
+
 # Visualize the output on the web:
 
 ```bash

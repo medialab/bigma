@@ -1,1 +1,5 @@
-convert -delay 5 $1_snapshot_*.png $1.gif
+#!/bin/bash
+
+FILEROOT=$(echo $1 | sed 's/\.csv$//')
+
+convert -delay 5 ${FILEROOT}_snapshot_*.png ${FILEROOT}.gif
