@@ -369,7 +369,7 @@ const colorizeGraph = (attr) => {
       });
     });
     if (missing > 0)
-      legend.innerHTML += '<div class="aligncenter">(' + missing + ' nodes with field missing)</div>';
+      legend.innerHTML += '<div class="aligncenter">(' + fmtN(missing) + ' node' + (missing > 1 ? 's' : '') + ' with field missing)</div>';
     setTimeout(() => {
       renderer.refresh();
       document.getElementById("loader").style.display = "none";
