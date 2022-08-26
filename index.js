@@ -30,7 +30,8 @@ const safeParseFloat = (x) => {
 const fmtN = (n) => {
   return (n + "").replace(/(.{9})$/, "&nbsp;$1")
     .replace(/(.{6})$/, "&nbsp;$1")
-    .replace(/(.{3})$/, "&nbsp;$1");
+    .replace(/(.{3})$/, "&nbsp;$1")
+    .replace(/^&nbsp;/, "");
 }
 const dispN = (n) => String(Math.round(n)).replace(/\..*$/, '')
 
@@ -91,7 +92,7 @@ const loadEdges = async (edgesfile) => {
   }
   sizeSpan.innerHTML = fmtN(size);
   title.textContent = "Affecting nodes size…"
-  setTimeout(renderGraph, 0);
+  setTimeout(renderGraph, 10);
 }
 
 // Read metadata
@@ -164,7 +165,7 @@ const loadMetadata = async (metadatafile) => {
   const select = document.getElementById('colorChoice');
   select.addEventListener('change', (event) => {
     document.getElementById("loader").style.display = "block";
-    setTimeout(() => colorizeGraph(select.value), 0);
+    setTimeout(() => colorizeGraph(select.value), 10);
   });
   document.getElementById("loader").style.display = "none";
 }
@@ -299,13 +300,13 @@ const renderGraph = () => {
           tmpRoot.remove();
           document.getElementById("loader").style.display = "none";
         }, "image/png");
-      }, 50);
+      }, 10);
     });
 
     title.textContent = "Graph ready!";
     document.getElementById("loader").style.display = "none";
     document.getElementById("colors").style.display = "block";
-  }, 0);
+  }, 10);
 }
 
 // Adjust nodes colors
@@ -329,19 +330,15 @@ const fixedPalette = [
 ];
 const colorizeGraph = (attr) => {
   const legend = document.getElementById("legend");
+  let colorScale = null;
   if (attr === "") {
     legend.style.display = "none";
-    graph.forEachNode((node) => {
-      graph.mergeNodeAttributes(node, {
-        color: "#999"
-      });
-    });
+    colorScale = (x) => "#999";
   } else {
     legend.style.display = "block";
     const info = metas_infos[attr];
     console.log("Colorizing graph based on field", attr, info);
     // Contiguous variables
-    let colorScale = null;
     if (info.type != String && info.values.length > 10) {
       if (info.min >= 0) {
         colorScale = (x) => posScale(x, info.min, info.max - info.min);
@@ -351,34 +348,33 @@ const colorizeGraph = (attr) => {
         legend.innerHTML = '<div id="grad" style="background-image: linear-gradient(to right, ' + negScale(-1, 0, 1) + ', ' + negScale(0, 0, 1) + ')"></div><span id="minval">' + dispN(info.min) + '</span><span id="maxval">' + dispN(info.max) + '</span>';
       } else {
         const maxExtent = Math.max(-info.min, info.max);
-        colorScale = (x) => {
-          if (x < 0)
-            return negScale(x, 0, maxExtent);
-          else return posScale(x, 0, maxExtent);
-        };
+        colorScale = (x) => (x < 0 ? negScale : posScale)(x, 0, maxExtent);
         legend.innerHTML = '<div id="grad" style="background-image: linear-gradient(to right, ' + negScale(-1, 0, 1) + ', ' + posScale(0, 0, 1) + ', ' + posScale(1, 0, 1) + ')"></div><span id="minval">' + dispN(info.min) + '</span><span id="midval">0</span><span id="maxval">' + dispN(info.max) + '</span>';
       }
     // Discrete values
     } else {
       colorScale = (x) => fixedPalette[(info.idx + info.values.indexOf(String(x))) % 10];
       legend.innerHTML = "<ul>" + info.values.map((x) =>
-        '<li><div class="colorbox" style="background-color: ' + colorScale(x) + '"></div>' + x.replace(/^$/, '""') + ' (' + fmtN(info.valuesCount[x]) + ' nodes)</li>'
+        '<li><div class="colorbox" style="background-color: ' + colorScale(x) + '"></div>' + x.replace(/^$/, '""') + ' (' + fmtN(info.valuesCount[x]) + ' node' + (info.valuesCount[x] > 1 ? 's' : '') + ')</li>'
       ).join("") + "</ul>"
     }
-
+  }
+  setTimeout(() => {
     let missing = 0;
     graph.forEachNode((node, attrs) => {
-      if (attrs[attr] === undefined)
+      if (attr !== "" && attrs[attr] === undefined)
         missing++;
       graph.mergeNodeAttributes(node, {
-        color: attrs[attr] === undefined ? "#CCC" : colorScale(attrs[attr])
+        color: attr !== "" && attrs[attr] === undefined ? "#CCC" : colorScale(attrs[attr])
       });
     });
     if (missing > 0)
-      legend.innerHTML += '<br/>(' + missing + ' nodes with field missing)';
-  }
-  renderer.refresh();
-  document.getElementById("loader").style.display = "none";
+      legend.innerHTML += '<div class="aligncenter">(' + missing + ' nodes with field missing)</div>';
+    setTimeout(() => {
+      renderer.refresh();
+      document.getElementById("loader").style.display = "none";
+    }, 10);
+  }, 10);
 }
 
 document.getElementById('positions_file').addEventListener('change', (event) => {

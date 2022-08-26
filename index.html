@@ -111,19 +111,20 @@
       .code {
         font-family: monospace;
         font-weight: bold;
-        padding-left: 20px;
       }
       .code ul {
         margin: 0;
         padding: 0;
-        max-width: 200px;
       }
       .code option, .code li {
         list-style-type: none;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
-        width: 220px;
+      }
+      .aligncenter {
+        text-align: center;
+        width: 100%;
       }
       h4 {
         margin: 0;
@@ -137,12 +138,13 @@
         text-align: center;
         font-weight: bold;
         height: 25px;
+        margin-top: 5px;
       }
       #legend {
         display: none;
         background-color: white;
         border: 1px black solid;
-        padding: 4px;
+        padding: 5px;
         color: black;
         font-weight: bold;
         font-family: monospace;
@@ -155,11 +157,10 @@
       .colorbox {
         width: 20px;
         height: 20px;
-        margin: 4px 10px;
+        margin: 5px 10px;
         display: inline-block;
         vertical-align: middle;
         border: 1px black solid;
-        padding-left: 20px;
       }
       #legend span {
         position: absolute;
@@ -215,7 +216,7 @@
         <label for="metadata">Load extra metadata CSV<br/><span class="code">Node,meta1,meta2,meta3…</span></label><br/>
         <input type="file" name="metadata" id="metadata_file"></input>
       </div>
-      <div id="metadatalog"></div>
+      <div id="metadatalog" class="aligncenter"></div>
       <div id="legend" class="code"></div>
     </div>
     <div id="loader"><img src="./loader.gif"/></div>
