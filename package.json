@@ -5,7 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "kotatsu serve index.js --public / ./public"
+    "build": "kotatsu build client index.js --production -o build/bundle.js",
+    "start": "kotatsu serve index.js --public / ./"
   },
   "license": "MIT",
   "dependencies": {
