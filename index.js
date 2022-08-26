@@ -10,9 +10,11 @@ const graph = new DirectedGraph();
 const loadPositions = async (positions) => {
   console.log("Loading positions file:", positions.name);
   const orderSpan = document.getElementById("order"),
-    title = document.getElementById("title");
+    title = document.getElementById("title"),
+    loader = document.getElementById("loader");
   title.textContent = "Loading nodes…";
   orderSpan.textContent = "…";
+  loader.style.display = "block";
   document.querySelectorAll("#sigma-container canvas").forEach(e => e.parentNode.removeChild(e))
   document.getElementById('positions_file').disabled = "disabled";
 
@@ -31,10 +33,7 @@ const loadPositions = async (positions) => {
   }
   orderSpan.textContent = order + "";
   document.getElementById("loadEdges").style.opacity = 1;
-  if (graph.size) {
-    title.textContent = "Affecting nodes sizes…"
-    setTimeout(renderGraph, 0);
-  }
+  loader.style.display = "none";
 }
 
 // Read edges
@@ -44,6 +43,7 @@ const loadEdges = async (edgesfile) => {
     title = document.getElementById("title");
   title.textContent = "Loading edges…";
   sizeSpan.textContent = "…";
+  document.getElementById("loader").style.display = "block";
   document.querySelectorAll("#sigma-container canvas").forEach(e => e.parentNode.removeChild(e))
   document.getElementById('edges_file').disabled = "disabled";
 
@@ -61,10 +61,8 @@ const loadEdges = async (edgesfile) => {
     }
   }
   sizeSpan.textContent = size + "";
-  if (graph.order) {
-    title.textContent = "Affecting nodes size…"
-    setTimeout(renderGraph, 0);
-  }
+  title.textContent = "Affecting nodes size…"
+  setTimeout(renderGraph, 0);
 }
 
 const renderGraph = () => {
@@ -155,48 +153,53 @@ const renderGraph = () => {
     });
 
     // Enable SavePNG button
-    document.getElementById("save-as-png").addEventListener("click", async () => {
-      const { width, height } = renderer.getDimensions();
-      const pixelRatio = window.devicePixelRatio || 1;
-      const tmpRoot = document.createElement("DIV");
-      tmpRoot.style.width = `${width}px`;
-      tmpRoot.style.height = `${height}px`;
-      tmpRoot.style.position = "absolute";
-      tmpRoot.style.right = "101%";
-      tmpRoot.style.bottom = "101%";
-      document.body.appendChild(tmpRoot);
-      const tmpRenderer = new Sigma(graph, tmpRoot, renderer.getSettings());
-      tmpRenderer.getCamera().setState(camera.getState());
-      tmpRenderer.refresh();
-      const canvas = document.createElement("CANVAS");
-      canvas.setAttribute("width", width * pixelRatio + "");
-      canvas.setAttribute("height", height * pixelRatio + "");
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, width * pixelRatio, height * pixelRatio);
-      const canvases = tmpRenderer.getCanvases();
-      const layers = Object.keys(canvases);
-      layers.forEach((id) => {
-        ctx.drawImage(
-          canvases[id],
-          0,
-          0,
-          width * pixelRatio,
-          height * pixelRatio,
-          0,
-          0,
-          width * pixelRatio,
-          height * pixelRatio,
-        );
-      });
-      canvas.toBlob((blob) => {
-        if (blob) FileSaver.saveAs(blob, "graph.png");
-        tmpRenderer.kill();
-        tmpRoot.remove();
-      }, "image/png");
+    document.getElementById("save-as-png").addEventListener("click", () => {
+      document.getElementById("loader").style.display = "block";
+      setTimeout(async () => {
+        const { width, height } = renderer.getDimensions();
+        const pixelRatio = window.devicePixelRatio || 1;
+        const tmpRoot = document.createElement("DIV");
+        tmpRoot.style.width = `${width}px`;
+        tmpRoot.style.height = `${height}px`;
+        tmpRoot.style.position = "absolute";
+        tmpRoot.style.right = "101%";
+        tmpRoot.style.bottom = "101%";
+        document.body.appendChild(tmpRoot);
+        const tmpRenderer = new Sigma(graph, tmpRoot, renderer.getSettings());
+        tmpRenderer.getCamera().setState(camera.getState());
+        tmpRenderer.refresh();
+        const canvas = document.createElement("CANVAS");
+        canvas.setAttribute("width", width * pixelRatio + "");
+        canvas.setAttribute("height", height * pixelRatio + "");
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, width * pixelRatio, height * pixelRatio);
+        const canvases = tmpRenderer.getCanvases();
+        const layers = Object.keys(canvases);
+        layers.forEach((id) => {
+          ctx.drawImage(
+            canvases[id],
+            0,
+            0,
+            width * pixelRatio,
+            height * pixelRatio,
+            0,
+            0,
+            width * pixelRatio,
+            height * pixelRatio,
+          );
+        });
+        canvas.toBlob((blob) => {
+          if (blob) FileSaver.saveAs(blob, "graph.png");
+          tmpRenderer.kill();
+          tmpRoot.remove();
+          document.getElementById("loader").style.display = "none";
+        }, "image/png");
+      }, 50);
     });
 
     title.textContent = "Graph ready";
+    document.getElementById("loader").style.display = "none";
   }, 0);
 }
 
