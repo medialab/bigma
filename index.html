@@ -93,26 +93,26 @@
         width: 100%;
         background: white;
       }
-      #buttons {
+      #load-menu {
         position: absolute;
         right: 1em;
         top: 1em;
-        display: flex;
-      }
-      form {
         border: 1px black solid;
-        background-color: #666;
+        background-color: #888;
         color: white;
+        padding: 8px;
+        line-height: 22px;
+      }
+      #nodes, #edges, #loadEdges {
+        display: none;
+      }
+      .code {
+        font-family: monospace;
+        font-weight: bold;
+        padding-left: 20px;
       }
       h4 {
         margin: 0;
-      }
-      fieldset {
-        border: none;
-      }
-      h4,
-      fieldset > div {
-        margin-bottom: 0.2em;
       }
     </style>
     <div id="sigma-container"></div>
@@ -130,30 +130,24 @@
       </div>
       <button type="button" id="save-as-png">Save as PNG</button>
     </div>
-    <div id="buttons">
-      <form>
-        <fieldset>
-          <div id="loadPositions">
-            <label for="positions">Load the positions CSV (Node,xPos,yPos)</label><br/>
-            <input type="file" name="positions" id="positions_file"></input><br/><br/>
-          </div>
-          <div id="loadEdges" style="opacity: 0">
-            <label for="positions">Load the edges CSV (Source,Target,Weight)</label><br/>
-            <input type="file" name="edges" id="edges_file"></input>
-          </div>
-        </fieldset>
-        <fieldset>
-          <h4 id="title"></h4>
-          <div>
-            <label>Number of nodes:</label>
-            <span id="order"></span>
-          </div>
-          <div>
-            <label>Number of edges:</label>
-            <span id="size"></span>
-          </div>
-        </fieldset>
-      </form>
+    <div id="load-menu">
+      <div id="loadPositions">
+        <label for="positions">Load the positions CSV<br/><span class="code">Node,xPos,yPos</span></label><br/>
+        <input type="file" name="positions" id="positions_file"></input>
+      </div>
+      <div id="nodes">
+        <b>Nodes:</b>
+        <span id="order"></span>
+      </div>
+      <div id="loadEdges">
+        <label for="positions">Load the edges CSV<br/><span class="code">Source,Target,Weight</span></label><br/>
+        <input type="file" name="edges" id="edges_file"></input>
+      </div>
+      <div id="edges">
+        <b>Edges:</b>
+        <span id="size"></span>
+      </div>
+      <h4 id="title"></h4>
     </div>
     <div id="loader"><img src="./loader.gif"/></div>
     <script src="build/bundle.js"></script>

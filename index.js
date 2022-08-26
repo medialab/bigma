@@ -6,6 +6,12 @@ import FileSaver from "file-saver";
 
 const graph = new DirectedGraph();
 
+const fmtN = (n) => {
+  return (n + "").replace(/(.{9})$/, "&nbsp;$1")
+    .replace(/(.{6})$/, "&nbsp;$1")
+    .replace(/(.{3})$/, "&nbsp;$1");
+}
+
 // Read nodes positions:
 const loadPositions = async (positions) => {
   console.log("Loading positions file:", positions.name);
@@ -13,10 +19,10 @@ const loadPositions = async (positions) => {
     title = document.getElementById("title"),
     loader = document.getElementById("loader");
   title.textContent = "Loading nodes…";
-  orderSpan.textContent = "…";
+  orderSpan.innerHTML = "0…";
   loader.style.display = "block";
-  document.querySelectorAll("#sigma-container canvas").forEach(e => e.parentNode.removeChild(e))
-  document.getElementById('positions_file').disabled = "disabled";
+  document.getElementById('loadPositions').style.display = "none";
+  document.getElementById('nodes').style.display = "block";
 
   let order = 0;
   for await (const line of fetchline(URL.createObjectURL(positions))) {
@@ -26,13 +32,14 @@ const loadPositions = async (positions) => {
       graph.addNode(node, {x: parseFloat(xPos), y: parseFloat(yPos)});
       order++;
       if (order % 1000 == 0)
-        orderSpan.textContent = order + "…";
+        orderSpan.innerHTML = fmtN(order) + "…";
     } catch(e) {
-      console.log("ERROR loading node:", line, e);
+      console.log("bloading node:", line, e);
     }
   }
-  orderSpan.textContent = order + "";
-  document.getElementById("loadEdges").style.opacity = 1;
+  orderSpan.innerHTML = fmtN(order);
+  title.textContent = "";
+  document.getElementById('loadEdges').style.display = "block";
   loader.style.display = "none";
 }
 
@@ -42,10 +49,10 @@ const loadEdges = async (edgesfile) => {
   const sizeSpan = document.getElementById("size"),
     title = document.getElementById("title");
   title.textContent = "Loading edges…";
-  sizeSpan.textContent = "…";
+  sizeSpan.innerHTML = "0…";
   document.getElementById("loader").style.display = "block";
-  document.querySelectorAll("#sigma-container canvas").forEach(e => e.parentNode.removeChild(e))
-  document.getElementById('edges_file').disabled = "disabled";
+  document.getElementById('loadEdges').style.display = "none";
+  document.getElementById('edges').style.display = "block";
 
   let size = 0;
   for await (const line of fetchline(URL.createObjectURL(edgesfile))) {
@@ -55,12 +62,12 @@ const loadEdges = async (edgesfile) => {
       graph.addEdge(source, target, {weight: parseInt(weight)});
       size++;
       if (size % 10000 == 0)
-        sizeSpan.textContent = size + "…";
+        sizeSpan.innerHTML = fmtN(size) + "…";
     } catch(e) {
       console.log("ERROR loading edge:", line, e);
     }
   }
-  sizeSpan.textContent = size + "";
+  sizeSpan.innerHTML = fmtN(size);
   title.textContent = "Affecting nodes size…"
   setTimeout(renderGraph, 0);
 }
@@ -198,7 +205,7 @@ const renderGraph = () => {
       }, 50);
     });
 
-    title.textContent = "Graph ready";
+    title.textContent = "Graph ready!";
     document.getElementById("loader").style.display = "none";
   }, 0);
 }
