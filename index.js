@@ -165,7 +165,7 @@ const loadMetadata = async (metadatafile) => {
 }
 
 const renderGraph = () => {
-// Adjust nodes sizes
+  // Adjust nodes sizes
   graph.forEachNode((node) => {
     const deg = graph.degree(node);
     graph.mergeNodeAttributes(node, {
