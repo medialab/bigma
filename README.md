@@ -14,7 +14,7 @@ npm install
 
 The script requires an edges CSV structured as `Souce,Target,Weight`.
 
-```
+```bash
 # Run NB_FA2_ITERATIONS iterations with ForceAtlas2 and render PNG snapshots every NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS:
 node spatialize-network.js <EDGELIST_AS_SOURCE-TARGET-WEIGHT.CSV> <NB_FA2_ITERATIONS> <NB_ITERATIONS_BETWEEN_MINIATURE_PNG_SNAPSHOTS>
 
